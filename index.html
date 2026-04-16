@@ -3,53 +3,440 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Car Payment Calculator</title>
+  <title>Car Payment Calculator – Free Auto Loan Payment Estimator</title>
+  <meta name="description" content="Use our free car payment calculator to estimate your monthly auto loan payment. Enter loan amount, interest rate, and term to get instant results." />
   <link rel="canonical" href="https://carpaymentcalculator.app/" />
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-    h1 { color: #2c3e50; }
-    label { display: block; margin-top: 12px; font-weight: bold; }
-    input { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
-    button { margin-top: 16px; padding: 10px 20px; background: #2980b9; color: #fff; border: none; cursor: pointer; border-radius: 4px; font-size: 16px; }
-    button:hover { background: #1a6ea8; }
-    #result { margin-top: 20px; font-size: 1.2em; }
-    .cta { display: inline-block; margin-top: 24px; padding: 12px 28px; background: #27ae60; color: #fff; text-decoration: none; border-radius: 4px; font-size: 16px; font-weight: bold; }
-    .cta:hover { background: #1e8449; }
-    footer { margin-top: 40px; font-size: 0.9em; color: #555; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a202c; background: #f7fafc; line-height: 1.6; }
+    a { color: #2b6cb0; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* NAV */
+    nav { background: #1a365d; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .nav-brand { color: #fff; font-size: 1.2rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { color: #bee3f8; font-size: 0.9rem; }
+    .nav-links a:hover { color: #fff; text-decoration: none; }
+
+    /* HERO */
+    .hero { background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%); color: #fff; padding: 64px 24px; text-align: center; }
+    .hero h1 { font-size: 2.4rem; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+    .hero p { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto 32px; }
+    .hero-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; padding: 4px 16px; font-size: 0.85rem; margin-bottom: 20px; }
+
+    /* CONTAINER */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* CALCULATOR SECTION */
+    .calc-section { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); margin: -40px auto 48px; max-width: 900px; overflow: hidden; }
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } .hero h1 { font-size: 1.7rem; } .nav-links { display: none; } }
+    .calc-inputs { padding: 36px; border-right: 1px solid #e2e8f0; }
+    .calc-inputs h2 { font-size: 1.1rem; font-weight: 700; color: #2d3748; margin-bottom: 24px; }
+    .field { margin-bottom: 20px; }
+    .field label { display: block; font-size: 0.85rem; font-weight: 600; color: #4a5568; margin-bottom: 6px; }
+    .field input, .field select { width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 1rem; color: #2d3748; transition: border-color 0.2s; background: #f7fafc; }
+    .field input:focus, .field select:focus { outline: none; border-color: #2b6cb0; background: #fff; }
+    .slider-row { display: flex; align-items: center; gap: 10px; }
+    .slider-row input[type=range] { flex: 1; accent-color: #2b6cb0; }
+    .slider-val { font-size: 0.9rem; font-weight: 600; color: #2b6cb0; min-width: 48px; text-align: right; }
+    .calc-btn { width: 100%; padding: 14px; background: #2b6cb0; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+    .calc-btn:hover { background: #1a4a8a; }
+    .calc-result { padding: 36px; background: #ebf8ff; display: flex; flex-direction: column; justify-content: center; }
+    .result-label { font-size: 0.85rem; color: #4a5568; font-weight: 600; margin-bottom: 4px; }
+    .result-value { font-size: 2.8rem; font-weight: 800; color: #1a365d; margin-bottom: 20px; }
+    .result-breakdown { background: #fff; border-radius: 10px; padding: 16px; }
+    .result-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .result-row:last-child { border-bottom: none; font-weight: 700; }
+    .result-row span:last-child { color: #2b6cb0; font-weight: 600; }
+    .cta-box { margin-top: 24px; padding: 16px; background: #2b6cb0; border-radius: 10px; text-align: center; }
+    .cta-box a { color: #fff; font-weight: 700; font-size: 0.95rem; }
+    .cta-box p { color: #bee3f8; font-size: 0.8rem; margin-top: 4px; }
+
+    /* FEATURES */
+    .section { padding: 64px 0; }
+    .section-title { text-align: center; margin-bottom: 48px; }
+    .section-title h2 { font-size: 1.8rem; font-weight: 800; color: #1a202c; margin-bottom: 12px; }
+    .section-title p { color: #718096; max-width: 540px; margin: 0 auto; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    @media (max-width: 768px) { .features-grid { grid-template-columns: 1fr; } }
+    .feature-card { background: #fff; border-radius: 12px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .feature-icon { font-size: 2rem; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #2d3748; }
+    .feature-card p { color: #718096; font-size: 0.9rem; }
+
+    /* HOW IT WORKS */
+    .how-bg { background: #fff; padding: 64px 0; }
+    .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    @media (max-width: 768px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+    .step { text-align: center; padding: 24px 16px; }
+    .step-num { width: 48px; height: 48px; background: #2b6cb0; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; margin: 0 auto 16px; }
+    .step h3 { font-size: 0.95rem; font-weight: 700; color: #2d3748; margin-bottom: 8px; }
+    .step p { font-size: 0.85rem; color: #718096; }
+
+    /* INFO CONTENT */
+    .info-section { padding: 64px 0; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+    .info-text h2 { font-size: 1.5rem; font-weight: 800; color: #1a202c; margin-bottom: 16px; }
+    .info-text p { color: #4a5568; margin-bottom: 16px; font-size: 0.95rem; }
+    .info-text h3 { font-size: 1rem; font-weight: 700; color: #2d3748; margin: 20px 0 8px; }
+    .formula-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; font-family: 'Courier New', monospace; font-size: 0.9rem; color: #2d3748; line-height: 1.8; }
+    .formula-box strong { color: #2b6cb0; }
+
+    /* TIPS */
+    .tips-list { list-style: none; }
+    .tips-list li { padding: 12px 0; border-bottom: 1px solid #e2e8f0; display: flex; gap: 12px; align-items: flex-start; font-size: 0.9rem; color: #4a5568; }
+    .tips-list li::before { content: "✓"; color: #38a169; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    /* FAQ */
+    .faq-bg { background: #fff; padding: 64px 0; }
+    .faq-list { max-width: 760px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid #e2e8f0; }
+    .faq-q { padding: 20px 0; font-weight: 700; color: #2d3748; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
+    .faq-q:hover { color: #2b6cb0; }
+    .faq-a { padding: 0 0 20px; color: #4a5568; font-size: 0.9rem; line-height: 1.7; display: none; }
+    .faq-a.open { display: block; }
+    .faq-arrow { transition: transform 0.2s; }
+    .faq-arrow.open { transform: rotate(180deg); }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table.comparison { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    table.comparison th { background: #1a365d; color: #fff; padding: 12px 16px; text-align: left; }
+    table.comparison td { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; color: #4a5568; }
+    table.comparison tr:hover td { background: #f7fafc; }
+
+    /* CTA BANNER */
+    .cta-banner { background: linear-gradient(135deg, #1a365d, #2b6cb0); color: #fff; padding: 64px 24px; text-align: center; border-radius: 16px; margin: 48px 0; }
+    .cta-banner h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; }
+    .cta-banner p { opacity: 0.85; margin-bottom: 28px; }
+    .cta-banner a { display: inline-block; background: #fff; color: #1a365d; padding: 14px 36px; border-radius: 8px; font-weight: 800; font-size: 1rem; }
+    .cta-banner a:hover { background: #ebf8ff; text-decoration: none; }
+
+    /* FOOTER */
+    footer { background: #1a202c; color: #a0aec0; padding: 48px 24px 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; max-width: 1100px; margin: 0 auto 40px; }
+    @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-brand { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .footer-desc { font-size: 0.85rem; line-height: 1.7; }
+    .footer-col h4 { color: #fff; font-size: 0.85rem; font-weight: 700; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 8px; }
+    .footer-col ul li a { color: #a0aec0; font-size: 0.85rem; }
+    .footer-col ul li a:hover { color: #fff; }
+    .footer-bottom { text-align: center; border-top: 1px solid #2d3748; padding-top: 24px; font-size: 0.8rem; max-width: 1100px; margin: 0 auto; }
   </style>
 </head>
 <body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">&#128664; Car Payment Calculator</div>
+  <div class="nav-links">
+    <a href="#calculator">Calculator</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#tips">Tips</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://carpaymentcalculator.app/" style="background:#2b6cb0;color:#fff;padding:6px 14px;border-radius:6px;font-weight:700;">Full Version</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">&#10003; Free &nbsp;&bull;&nbsp; No Sign-up Required &nbsp;&bull;&nbsp; Instant Results</div>
   <h1>Car Payment Calculator</h1>
-  <p>Estimate your monthly car payment quickly and easily.</p>
+  <p>Estimate your monthly auto loan payment in seconds. Enter your loan details below and find out exactly what you'll pay each month.</p>
+</div>
 
-  <label>Loan Amount ($)
-    <input type="number" id="loan" placeholder="25000" />
-  </label>
-  <label>Annual Interest Rate (%)
-    <input type="number" id="rate" placeholder="5.5" step="0.01" />
-  </label>
-  <label>Loan Term (months)
-    <input type="number" id="term" placeholder="60" />
-  </label>
-  <button onclick="calculate()">Calculate</button>
-  <div id="result"></div>
+<!-- CALCULATOR -->
+<div class="container" id="calculator">
+  <div class="calc-section">
+    <div class="calc-grid">
+      <div class="calc-inputs">
+        <h2>&#128203; Enter Your Loan Details</h2>
+        <div class="field">
+          <label>Vehicle Price ($)</label>
+          <input type="number" id="price" value="35000" min="0" />
+        </div>
+        <div class="field">
+          <label>Down Payment ($)</label>
+          <input type="number" id="down" value="5000" min="0" />
+        </div>
+        <div class="field">
+          <label>Trade-In Value ($)</label>
+          <input type="number" id="trade" value="0" min="0" />
+        </div>
+        <div class="field">
+          <label>Annual Interest Rate (%)</label>
+          <div class="slider-row">
+            <input type="range" id="rateSlider" min="0" max="25" step="0.1" value="6.5" oninput="document.getElementById('rate').value=this.value;document.getElementById('rateVal').textContent=this.value+'%'" />
+            <span class="slider-val" id="rateVal">6.5%</span>
+          </div>
+          <input type="number" id="rate" value="6.5" step="0.1" style="margin-top:8px;" oninput="document.getElementById('rateSlider').value=this.value;document.getElementById('rateVal').textContent=this.value+'%'" />
+        </div>
+        <div class="field">
+          <label>Loan Term</label>
+          <select id="term">
+            <option value="24">24 months (2 years)</option>
+            <option value="36">36 months (3 years)</option>
+            <option value="48">48 months (4 years)</option>
+            <option value="60" selected>60 months (5 years)</option>
+            <option value="72">72 months (6 years)</option>
+            <option value="84">84 months (7 years)</option>
+          </select>
+        </div>
+        <button class="calc-btn" onclick="calculate()">Calculate My Payment &#8594;</button>
+      </div>
+      <div class="calc-result" id="resultPanel">
+        <div class="result-label">ESTIMATED MONTHLY PAYMENT</div>
+        <div class="result-value" id="monthly">$487.27</div>
+        <div class="result-breakdown">
+          <div class="result-row"><span>Loan Amount</span><span id="loanAmt">$30,000</span></div>
+          <div class="result-row"><span>Total Interest</span><span id="totalInt">$9,236</span></div>
+          <div class="result-row"><span>Total Cost</span><span id="totalCost">$39,236</span></div>
+          <div class="result-row"><span>Payoff Date</span><span id="payoffDate">Jun 2030</span></div>
+        </div>
+        <div class="cta-box">
+          <a href="https://carpaymentcalculator.app/">Car Payment Calculator — Full Version</a>
+          <p>Amortization schedule, taxes, fees &amp; more</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <br />
-  <a class="cta" href="https://carpaymentcalculator.app/">Car Payment Calculator</a>
+<!-- FEATURES -->
+<div class="section">
+  <div class="container">
+    <div class="section-title">
+      <h2>Why Use Our Car Payment Calculator?</h2>
+      <p>Everything you need to make a confident car-buying decision — all in one place.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">&#9889;</div>
+        <h3>Instant Results</h3>
+        <p>Get your estimated monthly payment in real time as you adjust loan amount, rate, and term — no waiting required.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128200;</div>
+        <h3>Full Amortization Breakdown</h3>
+        <p>See exactly how much of each payment goes toward principal vs. interest over the life of your loan.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128179;</div>
+        <h3>Trade-In &amp; Down Payment</h3>
+        <p>Factor in your down payment and trade-in value to get the most accurate net loan amount and monthly cost.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128269;</div>
+        <h3>Compare Multiple Scenarios</h3>
+        <p>Run side-by-side comparisons of different loan terms and interest rates to find the best deal for your budget.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128273;</div>
+        <h3>No Login Required</h3>
+        <p>100% free with no account creation, no email signup, and no personal information required to use the calculator.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#128241;</div>
+        <h3>Mobile Friendly</h3>
+        <p>Works perfectly on any device — calculate your car payment from your phone while you're at the dealership.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <footer>
-    <p>For the full-featured tool, visit <a href="https://carpaymentcalculator.app/">Car Payment Calculator</a>.</p>
-  </footer>
+<!-- HOW IT WORKS -->
+<div class="how-bg" id="how-it-works">
+  <div class="container">
+    <div class="section-title">
+      <h2>How to Calculate Your Car Payment</h2>
+      <p>Four simple steps to find your estimated monthly auto loan payment.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Enter Vehicle Price</h3>
+        <p>Input the total purchase price of the car you want to buy, including any add-ons or dealer fees.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Add Down Payment</h3>
+        <p>Enter your down payment amount and any trade-in value to reduce the total loan balance.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Set Interest Rate &amp; Term</h3>
+        <p>Enter the APR offered by your lender and choose a loan term from 24 to 84 months.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>View Your Payment</h3>
+        <p>Instantly see your monthly payment, total interest paid, and total cost of the vehicle.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <script>
-    function calculate() {
-      const P = parseFloat(document.getElementById('loan').value);
-      const r = parseFloat(document.getElementById('rate').value) / 100 / 12;
-      const n = parseInt(document.getElementById('term').value);
-      if (!P || !r || !n) { document.getElementById('result').textContent = 'Please fill in all fields.'; return; }
-      const payment = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-      document.getElementById('result').textContent = 'Monthly Payment: $' + payment.toFixed(2);
-    }
-  </script>
+<!-- INFO SECTION -->
+<div class="info-section">
+  <div class="container">
+    <div class="info-grid">
+      <div class="info-text">
+        <h2>Understanding Your Auto Loan Payment</h2>
+        <p>Your monthly car payment is determined by three primary factors: the loan principal (the amount you borrow), the annual percentage rate (APR), and the loan term in months. Changing any one of these has a significant impact on your monthly payment and the total cost of the vehicle.</p>
+        <h3>The Car Payment Formula</h3>
+        <div class="formula-box">
+          <strong>M = P × [r(1+r)^n] / [(1+r)^n - 1]</strong><br/><br/>
+          M = Monthly Payment<br/>
+          P = Principal (Loan Amount)<br/>
+          r = Monthly Interest Rate (APR ÷ 12)<br/>
+          n = Number of Payments (months)
+        </div>
+        <h3>Loan Amount vs. Loan Term</h3>
+        <p>A longer loan term lowers your monthly payment but means you pay significantly more in interest over time. A shorter term means higher payments but less total interest paid — and you'll build equity faster.</p>
+      </div>
+      <div>
+        <h2 style="font-size:1.3rem;font-weight:800;color:#1a202c;margin-bottom:20px;">Monthly Payment by Loan Term</h2>
+        <div class="table-wrap">
+          <table class="comparison">
+            <thead><tr><th>Loan Amount</th><th>APR</th><th>Term</th><th>Monthly Payment</th></tr></thead>
+            <tbody>
+              <tr><td>$30,000</td><td>6.5%</td><td>36 mo</td><td>$918</td></tr>
+              <tr><td>$30,000</td><td>6.5%</td><td>48 mo</td><td>$712</td></tr>
+              <tr><td>$30,000</td><td>6.5%</td><td>60 mo</td><td>$587</td></tr>
+              <tr><td>$30,000</td><td>6.5%</td><td>72 mo</td><td>$507</td></tr>
+              <tr><td>$30,000</td><td>6.5%</td><td>84 mo</td><td>$451</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <br/>
+        <h2 style="font-size:1.3rem;font-weight:800;color:#1a202c;margin-bottom:20px;" id="tips">Tips to Lower Your Car Payment</h2>
+        <ul class="tips-list">
+          <li>Make a larger down payment to reduce the loan principal</li>
+          <li>Shop lenders — credit unions often offer lower APRs than dealerships</li>
+          <li>Improve your credit score before applying for the loan</li>
+          <li>Trade in your current vehicle to reduce the purchase price</li>
+          <li>Choose a longer loan term (but watch total interest costs)</li>
+          <li>Consider a less expensive vehicle or trim level</li>
+          <li>Avoid add-ons like extended warranties rolled into the loan</li>
+          <li>Look for manufacturer rebates and special financing offers</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-bg" id="faq">
+  <div class="container">
+    <div class="section-title">
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you need to know about calculating car payments.</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What is a good monthly car payment? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-a">Financial experts typically recommend keeping your total monthly car expenses — including payment, insurance, gas, and maintenance — below 20% of your take-home pay. For the loan payment alone, most advisors suggest no more than 10–15% of your monthly income.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How does APR affect my car payment? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-a">APR (Annual Percentage Rate) is the annual cost of your loan expressed as a percentage. A higher APR means more interest paid each month and over the life of the loan. For example, on a $30,000 loan over 60 months, raising the APR from 4% to 8% adds roughly $62 per month and over $3,700 in total interest.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Should I choose a 60-month or 72-month loan? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-a">A 72-month loan has lower monthly payments but costs significantly more in interest over time. You also risk being "underwater" on the loan — owing more than the car is worth — for longer. If you can afford the higher payments, a 48- or 60-month loan is generally the better financial choice.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What credit score do I need for a car loan? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-a">You can get a car loan with almost any credit score, but borrowers with scores of 660 or higher typically receive the best rates. Scores above 720 usually qualify for the lowest available APRs. Borrowers with scores below 600 are considered subprime and will pay significantly higher interest rates.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Does this calculator include taxes and fees? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-a">This simplified calculator computes the base loan payment from principal, rate, and term. The full version at carpaymentcalculator.app includes sales tax, registration fees, dealer fees, and the ability to roll them into the loan for a complete payment estimate.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What is the average car payment in the US? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-a">According to recent industry data, the average monthly new car payment in the United States is around $735, while the average used car payment is approximately $523. These figures vary by credit score, loan term, and vehicle type.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA BANNER -->
+<div class="container">
+  <div class="cta-banner">
+    <h2>Ready for a More Detailed Estimate?</h2>
+    <p>Get the full experience with amortization schedules, tax calculations, and side-by-side loan comparisons.</p>
+    <a href="https://carpaymentcalculator.app/">Car Payment Calculator</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">&#128664; Car Payment Calculator</div>
+      <p class="footer-desc">A free tool to help you estimate monthly auto loan payments. Calculate your car payment before you walk into the dealership.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Calculator</h4>
+      <ul>
+        <li><a href="#calculator">Monthly Payment</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#tips">Money-Saving Tips</a></li>
+        <li><a href="https://carpaymentcalculator.app/">Full Version</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="https://carpaymentcalculator.app/">Amortization Schedule</a></li>
+        <li><a href="https://carpaymentcalculator.app/">Refinance Calculator</a></li>
+        <li><a href="https://carpaymentcalculator.app/">Lease vs. Buy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 Car Payment Calculator. This tool is for informational purposes only. Always consult a financial advisor before making loan decisions.</p>
+  </div>
+</footer>
+
+<script>
+  // Initial calculation on load
+  calculate();
+
+  function calculate() {
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const down = parseFloat(document.getElementById('down').value) || 0;
+    const trade = parseFloat(document.getElementById('trade').value) || 0;
+    const apr = parseFloat(document.getElementById('rate').value) || 0;
+    const n = parseInt(document.getElementById('term').value) || 60;
+    const P = price - down - trade;
+    if (P <= 0 || apr < 0) { document.getElementById('monthly').textContent = '--'; return; }
+    const r = apr / 100 / 12;
+    let M;
+    if (r === 0) { M = P / n; } else { M = P * (r * Math.pow(1+r,n)) / (Math.pow(1+r,n) - 1); }
+    const totalPaid = M * n;
+    const totalInt = totalPaid - P;
+    const payoff = new Date(); payoff.setMonth(payoff.getMonth() + n);
+    document.getElementById('monthly').textContent = '$' + M.toFixed(2);
+    document.getElementById('loanAmt').textContent = '$' + P.toLocaleString('en-US', {maximumFractionDigits:0});
+    document.getElementById('totalInt').textContent = '$' + totalInt.toLocaleString('en-US', {maximumFractionDigits:0});
+    document.getElementById('totalCost').textContent = '$' + totalPaid.toLocaleString('en-US', {maximumFractionDigits:0});
+    document.getElementById('payoffDate').textContent = payoff.toLocaleString('en-US', {month:'short', year:'numeric'});
+  }
+
+  function toggleFaq(el) {
+    const ans = el.nextElementSibling;
+    const arrow = el.querySelector('.faq-arrow');
+    ans.classList.toggle('open');
+    arrow.classList.toggle('open');
+  }
+</script>
 </body>
-</html>
+  </html>
